@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ApolloProvider } from "./ApolloProvider";
 import { Toaster } from "@/components/ui/toaster";
+import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,6 +22,7 @@ export default function RootLayout({
             <body className={inter.className}>
                 <ApolloProvider>{children}</ApolloProvider>
                 <Toaster />
+                <Analytics />
             </body>
         </html>
     );
