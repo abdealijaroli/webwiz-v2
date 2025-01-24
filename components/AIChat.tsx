@@ -8,10 +8,16 @@ import { Send, Download } from "lucide-react";
 import { useMutation } from "@apollo/client";
 import { CREATE_WEBSITE } from "@/lib/graphql/mutations";
 import { generateWebsite } from "@/lib/ai-providers";
+import { useToast } from "@/hooks/use-toast";
 
 interface AIChatProps {
     apiKey: string;
     provider: string;
+    onDesignUpdate: (design: {
+        html: string;
+        css: string;
+        javascript: string;
+    }) => void;
 }
 
 interface Message {
@@ -25,13 +31,22 @@ interface WebsiteCode {
     javascript: string;
 }
 
-export default function AIChat({ apiKey, provider }: AIChatProps) {
+export default function AIChat({
+    apiKey,
+    provider,
+    onDesignUpdate,
+}: AIChatProps) {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const [currentCode, setCurrentCode] = useState<WebsiteCode | null>(null);
+    const [currentCode, setCurrentCode] = useState<WebsiteCode>({
+        html: "",
+        css: "",
+        javascript: "",
+    });
 
     const [createWebsite] = useMutation(CREATE_WEBSITE);
+    const { toast } = useToast();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -44,38 +59,58 @@ export default function AIChat({ apiKey, provider }: AIChatProps) {
 
         try {
             const aiResponse = await generateWebsite(input, provider, apiKey);
-            setCurrentCode(aiResponse);
 
-            // Store the generated website in GraphQL backend
-            const { data } = await createWebsite({
-                variables: {
-                    name: "Generated Website",
-                    description: input,
-                    ...aiResponse,
-                },
-            });
+            // Update both local and parent state with the AI response
+            const newCode = {
+                html: aiResponse.html || "",
+                css: aiResponse.css || "",
+                javascript: aiResponse.javascript || "",
+            };
+
+            setCurrentCode(newCode);
+            onDesignUpdate(newCode); // Update parent component's state
+
+            try {
+                // Try to store in GraphQL backend, but don't block on failure
+                await createWebsite({
+                    variables: {
+                        name: "Generated Website",
+                        description: input,
+                        ...aiResponse,
+                    },
+                });
+            } catch (error) {
+                console.error("Failed to save to database:", error);
+                // Don't show error to user since this is not critical
+            }
 
             const assistantMessage = {
                 role: "assistant" as const,
                 content:
-                    "I've generated a website based on your description. You can see the preview and export the code.",
+                    "I've generated a website based on your description. You can see the preview and code in the right panel.",
             };
             setMessages((prev) => [...prev, assistantMessage]);
         } catch (error) {
+            console.error("Error:", error);
+            toast({
+                title: "Error",
+                description: "Failed to generate website. Please try again.",
+                variant: "destructive",
+            });
             const errorMessage = {
                 role: "assistant" as const,
                 content:
-                    "Sorry, there was an error processing your request. Please check your API key and try again.",
+                    "Sorry, there was an error processing your request. Please try again.",
             };
             setMessages((prev) => [...prev, errorMessage]);
-            console.error("Error:", error);
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleExportCode = () => {
-        if (!currentCode) return;
+        if (!currentCode.html && !currentCode.css && !currentCode.javascript)
+            return;
 
         const zipContent = {
             "index.html": `<!DOCTYPE html>
@@ -134,7 +169,9 @@ export default function AIChat({ apiKey, provider }: AIChatProps) {
             </ScrollArea>
 
             <div className="mt-4 space-y-2">
-                {currentCode && (
+                {(currentCode.html ||
+                    currentCode.css ||
+                    currentCode.javascript) && (
                     <Button
                         onClick={handleExportCode}
                         variant="outline"
