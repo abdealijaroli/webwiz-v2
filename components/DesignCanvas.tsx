@@ -16,34 +16,53 @@ export default function DesignCanvas({
     const iframeRef = useRef<HTMLIFrameElement>(null);
 
     useEffect(() => {
-        if (iframeRef.current) {
-            const doc = iframeRef.current.contentDocument;
-            if (doc) {
-                doc.open();
-                doc.write(`
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <style>
-                body {
-                  margin: 0;
-                  padding: 20px;
-                  font-family: system-ui, -apple-system, sans-serif;
-                }
-                ${css || ""}
-              </style>
-            </head>
-            <body>
-              ${html || "<p>Your website preview will appear here...</p>"}
-              <script>
-                ${javascript || ""}
-              </script>
-            </body>
-          </html>
-        `);
-                doc.close();
+        if (!iframeRef.current) return;
+
+        const doc = iframeRef.current.contentDocument;
+        if (!doc) return;
+
+        // Create a complete HTML document with proper structure
+        const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            /* Reset default styles */
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
             }
-        }
+            
+            /* Base styles */
+            body {
+              font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+              line-height: 1.5;
+            }
+
+            /* Custom styles */
+            ${css || ""}
+          </style>
+        </head>
+        <body>
+          ${html || "<p>Your website preview will appear here...</p>"}
+          <script>
+            try {
+              ${javascript || ""}
+            } catch (error) {
+              console.error('Preview JavaScript error:', error);
+            }
+          </script>
+        </body>
+      </html>
+    `;
+
+        // Write the content to the iframe
+        doc.open();
+        doc.write(htmlContent);
+        doc.close();
     }, [html, css, javascript]);
 
     return (
@@ -52,6 +71,7 @@ export default function DesignCanvas({
                 ref={iframeRef}
                 className="w-full h-full"
                 sandbox="allow-scripts"
+                title="Website Preview"
             />
         </div>
     );
