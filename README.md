@@ -1,7 +1,8 @@
 # WebWiz V2
 
 This is a successor to my first ever AI-powered web designing project - [WebWiz](https://github.com/abdealijaroli/webwiz). It was built way before the existence of [v0.dev](https://v0.dev) and [bolt.new](https://bolt.new). It was built when OpenAI first released their API and I thought, "What if I built something like text-to-website?" WebWiz was born. Now I am back with a successor, the V2.
-https://github.com/user-attachments/assets/8fd63bc7-8c35-4d2f-863e-03e28388b012
+![webwiz](https://github.com/user-attachments/assets/12dd2f51-899d-4d20-9707-f8ea0fe2e211)
+
 
 ## Features
 
