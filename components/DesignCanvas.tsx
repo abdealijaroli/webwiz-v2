@@ -40,6 +40,7 @@ export default function DesignCanvas({
             body {
               font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
               line-height: 1.5;
+              padding: 1rem;
             }
 
             /* Custom styles */
@@ -70,7 +71,7 @@ export default function DesignCanvas({
             <iframe
                 ref={iframeRef}
                 className="w-full h-full"
-                sandbox="allow-scripts"
+                sandbox="allow-scripts allow-same-origin"
                 title="Website Preview"
             />
         </div>
