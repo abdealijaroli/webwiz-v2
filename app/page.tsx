@@ -65,8 +65,8 @@ export default function Home() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <Card className="p-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <Card className="p-6 lg:col-span-1">
                         <AIChat
                             apiKey={apiKey}
                             provider={provider}
@@ -74,7 +74,7 @@ export default function Home() {
                         />
                     </Card>
 
-                    <Card className="p-6">
+                    <Card className="p-6 lg:col-span-2">
                         <Tabs defaultValue="preview">
                             <TabsList className="mb-4">
                                 <TabsTrigger value="preview">

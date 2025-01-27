@@ -70,7 +70,7 @@ Return a JSON object with exactly this format:
   "css": "your css code here",
   "javascript": "your javascript code here"
 }
-Important: Return ONLY the JSON object, no additional text, no code blocks, no backticks.`;
+Important: Return ONLY the JSON object, no additional text, no code blocks, no backticks. Always include navbar and footer. Always center the content. Make the website modern and colorful.`;
 
             const result = await model.generateContent(prompt_template);
             const response = await result.response;
